@@ -8,3 +8,7 @@
   to the internal host network only.
 - A built-in single-process filesystem config with a configurable retention; a
   full `config` overrides it.
+
+## v0.1.1
+
+- The data volume is owned by uid 10001, the Loki image's user, so Loki can write it.

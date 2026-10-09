@@ -43,8 +43,8 @@ resource "nomad_dynamic_host_volume" "data" {
 
   parameters = {
     mode = "0700"
-    uid  = "0"
-    gid  = "0"
+    uid  = "10001"
+    gid  = "10001"
   }
 
   capability {
