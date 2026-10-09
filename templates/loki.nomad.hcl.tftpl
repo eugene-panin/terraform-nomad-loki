@@ -1,0 +1,74 @@
+job "${job_name}" {
+  namespace   = "${namespace}"
+  datacenters = ${jsonencode(datacenters)}
+  type        = "service"
+
+  meta {
+    backup = "stop"
+  }
+
+  group "loki" {
+    network {
+      mode = "bridge"
+
+      port "http" {
+        static       = ${http_port}
+        to           = ${http_port}
+        host_network = "${internal_network}"
+      }
+
+      port "grpc" {
+        static       = ${grpc_port}
+        to           = ${grpc_port}
+        host_network = "${internal_network}"
+      }
+    }
+
+    volume "data" {
+      type            = "host"
+      source          = "${volume_name}"
+      access_mode     = "single-node-writer"
+      attachment_mode = "file-system"
+    }
+
+    service {
+      name     = "${job_name}"
+      port     = "http"
+      provider = "consul"
+
+      check {
+        type     = "http"
+        path     = "/ready"
+        interval = "15s"
+        timeout  = "5s"
+      }
+    }
+
+    task "loki" {
+      driver = "docker"
+
+      config {
+        image    = "${image}"
+        args     = ["-config.file=/local/loki.yml"]
+        cap_drop = ["all"]
+      }
+
+      volume_mount {
+        volume      = "data"
+        destination = "/loki"
+      }
+
+      template {
+        destination = "local/loki.yml"
+        data        = <<-LOKICONF
+${config}
+        LOKICONF
+      }
+
+      resources {
+        cpu    = ${resources.cpu}
+        memory = ${resources.memory}
+      }
+    }
+  }
+}
