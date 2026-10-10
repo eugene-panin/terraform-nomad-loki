@@ -27,3 +27,9 @@
   (service-intentions). The HTTP port stays open for the platform's Alloy, which
   pushes from the host. Envoy's metrics are a `<job_name>-envoy` service tagged
   for Alloy.
+
+## v0.1.4
+
+- The mesh's config entries are written as Consul stores them (the empty
+  blocks it fills into service-defaults; Type and Precedence on each intention
+  source), so a plan no longer rewrites them on every apply.

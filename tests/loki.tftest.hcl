@@ -48,7 +48,7 @@ run "it_joins_the_mesh" {
 
   assert {
     condition = (
-      jsondecode(consul_config_entry.intentions[0].config_json).Sources == [{ Name = "grafana", Action = "allow" }]
+      jsondecode(consul_config_entry.intentions[0].config_json).Sources == [{ Name = "grafana", Action = "allow", Precedence = 9, Type = "consul" }]
       && jsondecode(consul_config_entry.defaults[0].config_json).Protocol == "http"
     )
     error_message = "Only the allowed services may connect, and the protocol is http."
