@@ -69,3 +69,24 @@ variable "resources" {
     error_message = "resources.memory_max must be at least resources.memory."
   }
 }
+
+variable "mesh" {
+  description = <<-EOT
+    The Consul service mesh. enabled puts Loki behind an Envoy sidecar (transparent proxy):
+    mesh services reach it as <job_name>.virtual.consul over mTLS, and only those in allow
+    may (Consul intentions). The HTTP port stays reachable outside the mesh, for the
+    platform's Alloy that pushes from the host; keep_open_ports are kept open as well.
+    protocol is what Consul's L7 features see: http.
+  EOT
+  type = object({
+    enabled         = optional(bool, false)
+    allow           = optional(list(string), [])
+    keep_open_ports = optional(list(number), [])
+    protocol        = optional(string, "http")
+  })
+  default = {}
+  validation {
+    condition     = contains(["tcp", "http", "http2", "grpc"], var.mesh.protocol)
+    error_message = "mesh.protocol must be tcp, http, http2 or grpc."
+  }
+}

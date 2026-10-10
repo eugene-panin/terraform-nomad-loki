@@ -18,3 +18,12 @@
 - The task reserves 256 MB, sized to its use, and may grow to 1024 MB:
   `resources.memory_max` (Nomad memory oversubscription, which the platform
   turns on). It reserved more than it used before.
+
+## v0.1.3
+
+- `mesh`: Loki can join the Consul service mesh — an Envoy sidecar with the
+  transparent proxy, so mesh services (the dashboards) reach it as
+  `<job_name>.virtual.consul` over mTLS as `mesh.allow` lets them
+  (service-intentions). The HTTP port stays open for the platform's Alloy, which
+  pushes from the host. Envoy's metrics are a `<job_name>-envoy` service tagged
+  for Alloy.

@@ -1,3 +1,4 @@
+mock_provider "consul" {}
 mock_provider "nomad" {}
 
 run "it_exposes_a_consul_service_with_the_default_config" {
@@ -25,5 +26,40 @@ run "memory_is_reserved_by_use_and_may_grow" {
   assert {
     condition     = strcontains(nomad_job.loki.jobspec, "memory     = 256") && strcontains(nomad_job.loki.jobspec, "memory_max = 1024")
     error_message = "The task must reserve its usual memory and be allowed to grow to memory_max."
+  }
+}
+
+run "it_joins_the_mesh" {
+  command = apply
+
+  variables {
+    mesh = { enabled = true, allow = ["grafana"] }
+  }
+
+  assert {
+    condition = (
+      strcontains(nomad_job.loki.jobspec, "transparent_proxy")
+      && strcontains(nomad_job.loki.jobspec, "exclude_inbound_ports = [\"3100\",\"9102\"]")
+      && strcontains(nomad_job.loki.jobspec, "name     = \"loki-envoy\"")
+      && strcontains(nomad_job.loki.jobspec, "uid                   = \"1337\"")
+    )
+    error_message = "In the mesh Loki must sit behind an Envoy sidecar, keep its HTTP port open for Alloy, and expose Envoy's metrics."
+  }
+
+  assert {
+    condition = (
+      jsondecode(consul_config_entry.intentions[0].config_json).Sources == [{ Name = "grafana", Action = "allow" }]
+      && jsondecode(consul_config_entry.defaults[0].config_json).Protocol == "http"
+    )
+    error_message = "Only the allowed services may connect, and the protocol is http."
+  }
+}
+
+run "out_of_the_mesh_by_default" {
+  command = apply
+
+  assert {
+    condition     = !strcontains(nomad_job.loki.jobspec, "connect {") && length(consul_config_entry.intentions) == 0
+    error_message = "Without mesh.enabled there is no sidecar and no intentions."
   }
 }

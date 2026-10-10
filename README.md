@@ -34,3 +34,11 @@ logs to it; Grafana queries it.
 make lint
 make module-tests
 ```
+
+## Service mesh
+
+With `mesh.enabled`, the job gets an Envoy sidecar (transparent proxy) and
+Consul config entries: `service-defaults` (`mesh.protocol`, http) and
+`service-intentions` allowing `mesh.allow`. Mesh clients query
+`http://<job_name>.virtual.consul:3100`. The HTTP port stays open: the
+platform's Alloy pushes logs to it from the host, outside the mesh.
