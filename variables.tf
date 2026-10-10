@@ -57,10 +57,15 @@ variable "internal_host_network" {
 }
 
 variable "resources" {
-  description = "CPU (MHz) and memory (MB) for the Loki task."
+  description = "CPU (MHz) and memory (MB) for the Loki task: memory is what it reserves (sized to its use), memory_max how far it may grow (Nomad memory oversubscription)."
   type = object({
-    cpu    = optional(number, 500)
-    memory = optional(number, 1024)
+    cpu        = optional(number, 500)
+    memory     = optional(number, 256)
+    memory_max = optional(number, 1024)
   })
   default = {}
+  validation {
+    condition     = var.resources.memory_max >= var.resources.memory
+    error_message = "resources.memory_max must be at least resources.memory."
+  }
 }

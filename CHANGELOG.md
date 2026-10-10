@@ -12,3 +12,9 @@
 ## v0.1.1
 
 - The data volume is owned by uid 10001, the Loki image's user, so Loki can write it.
+
+## v0.1.2
+
+- The task reserves 256 MB, sized to its use, and may grow to 1024 MB:
+  `resources.memory_max` (Nomad memory oversubscription, which the platform
+  turns on). It reserved more than it used before.
