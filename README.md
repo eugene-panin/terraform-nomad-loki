@@ -23,6 +23,8 @@ logs to it; Grafana queries it.
 | `config` | built-in | full `loki.yml` to override the single-process filesystem default |
 | `internal_host_network` | `default` | host network it binds to |
 | `resources` | `{500, 1024}` | `{cpu, memory}` |
+| `service_tags` | `[]` | tags of the Consul service, such as `damstack.provides=<capability>` |
+| `service_meta` | `{}` | meta of the Consul service, what else a client needs |
 
 ## Outputs
 

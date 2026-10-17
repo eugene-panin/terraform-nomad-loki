@@ -33,3 +33,9 @@
 - The mesh's config entries are written as Consul stores them (the empty
   blocks it fills into service-defaults; Type and Precedence on each intention
   source), so a plan no longer rewrites them on every apply.
+
+## v0.1.5
+
+- `service_tags` and `service_meta`: tags and meta of the Consul service
+  clients reach it by, such as `damstack.provides=logs@1`. None by
+  default, so the job is as before.

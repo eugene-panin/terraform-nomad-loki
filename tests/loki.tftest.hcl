@@ -63,3 +63,26 @@ run "out_of_the_mesh_by_default" {
     error_message = "Without mesh.enabled there is no sidecar and no intentions."
   }
 }
+
+run "the_service_carries_the_tags_and_meta_given" {
+  command = apply
+
+  variables {
+    service_tags = ["damstack.provides=logs@1"]
+    service_meta = { kind = "example" }
+  }
+
+  assert {
+    condition     = strcontains(nomad_job.loki.jobspec, "tags     = [\"damstack.provides=logs@1\"]") && strcontains(nomad_job.loki.jobspec, "meta {") && strcontains(nomad_job.loki.jobspec, "kind = \"example\"")
+    error_message = "The service must carry the tags and meta given."
+  }
+}
+
+run "the_service_has_no_tags_or_meta_by_default" {
+  command = apply
+
+  assert {
+    condition     = !strcontains(nomad_job.loki.jobspec, "damstack.provides") && length(regexall("\n      meta {", nomad_job.loki.jobspec)) == 0
+    error_message = "Without service_tags and service_meta the service must be as before."
+  }
+}
